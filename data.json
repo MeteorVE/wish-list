@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "imageUrl": "https://via.placeholder.com/300x200.png?text=商品A",
+    "title": "高效能筆記型電腦",
+    "price": "NT$35,000",
+    "purchaseUrl": "https://example.com/laptop",
+    "purchased": false,
+    "tags": ["LoveLive", "工作用"]
+  },
+  {
+    "id": 2,
+    "imageUrl": "https://via.placeholder.com/300x200.png?text=商品B",
+    "title": "人體工學辦公椅",
+    "price": "NT$8,000",
+    "purchaseUrl": "https://example.com/chair",
+    "purchased": true,
+    "tags": ["家具", "辦公用品", "健康"]
+  },
+  {
+    "id": 3,
+    "imageUrl": "https://via.placeholder.com/300x200.png?text=商品C",
+    "title": "無線降噪耳機",
+    "price": "NT$6,500",
+    "purchaseUrl": "https://example.com/headphones",
+    "purchased": false,
+    "tags": ["電子產品", "音樂", "通勤"]
+  },
+  {
+    "id": 4,
+    "imageUrl": "https://via.placeholder.com/300x200.png?text=商品D",
+    "title": "專業單眼相機",
+    "price": "NT$42,000",
+    "purchaseUrl": "https://example.com/camera",
+    "purchased": false,
+    "tags": ["電子產品", "攝影", "興趣"]
+  },
+  {
+    "id": 5,
+    "imageUrl": "https://via.placeholder.com/300x200.png?text=商品E",
+    "title": "限量版運動鞋",
+    "price": "NT$5,800",
+    "purchaseUrl": "https://example.com/shoes",
+    "purchased": true,
+    "tags": ["服飾配件", "運動", "收藏"]
+  }
+]

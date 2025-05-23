@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的 Wish List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .card.horizontal .card-image img {
+            height: 100%;
+            object-fit: cover;
+        }
+        .card.horizontal .card-image {
+            max-width: 30%;
+        }
+        .chip {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .filter-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        #addItemModal, #editItemModal {
+            max-width: 600px;
+        }
+        .card-action a {
+            cursor: pointer;
+        }
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+        .loading .spinner {
+            margin-right: 10px;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background-color: #333;
+            color: white;
+            border-radius: 4px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h4>登入/註冊</h4>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input id="username" type="text" class="validate" required>
+                    <label for="username">使用者名稱</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s6">
+                    <button class="btn waves-effect waves-light" id="loginBtn">登入
+                        <i class="material-icons right">login</i>
+                    </button>
+                </div>
+                <div class="col s6">
+                    <button class="btn waves-effect waves-light teal" id="registerBtn">註冊
+                        <i class="material-icons right">person_add</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="user-status right-align" style="margin-bottom: 20px;">
+            <span id="currentUser">未登入</span>
+            <button class="btn-small waves-effect waves-light" id="logoutBtn" style="display: none; margin-left: 10px;">
+                登出
+            </button>
+            <button class="btn-small waves-effect waves-light blue" id="saveToServerBtn" style="display: none; margin-left: 10px;">
+                儲存到伺服器
+            </button>
+            <button class="btn-small waves-effect waves-light green" id="saveToLocalBtn" style="margin-left: 10px;">
+                儲存到本地
+                <i class="material-icons right">save</i>
+            </button>
+        </div>
+
+        <h1 class="center-align">我的 Wish List</h1>
+        
+        <div class="filter-section">
+            <h5>篩選條件</h5>
+            <div class="row">
+                <div class="input-field col s12 m6">
+                    <select id="purchasedFilter">
+                        <option value="all" selected>所有狀態</option>
+                        <option value="purchased">已購買</option>
+                        <option value="notPurchased">未購買</option>
+                    </select>
+                    <label>購買狀態</label>
+                </div>
+                <div class="input-field col s12 m6">
+                    <select id="tagFilter" multiple>
+                        <option value="" disabled selected>選擇標籤</option>
+                        </select>
+                    <label>標籤篩選</label>
+                </div>
+            </div>
+            <button class="btn waves-effect waves-light" id="resetFilters">重設篩選
+                <i class="material-icons right">refresh</i>
+            </button>
+        </div>
+        
+        <div class="fixed-action-btn">
+            <a class="btn-floating btn-large waves-effect waves-light red modal-trigger" href="#addItemModal">
+                <i class="large material-icons">add</i>
+            </a>
+        </div>
+        
+        <div id="itemList">
+            <div class="loading">
+                <div class="spinner"></div>
+                <span>載入資料中...</span>
+            </div>
+        </div>
+    </div>
+    
+    <div id="addItemModal" class="modal">
+        <div class="modal-content">
+            <h4>新增商品</h4>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input id="itemTitle" type="text" class="validate" required>
+                    <label for="itemTitle">標題</label>
+                </div>
+                <div class="input-field col s12">
+                    <input id="itemPrice" type="number" class="validate" required>
+                    <label for="itemPrice">價格</label>
+                </div>
+                <div class="input-field col s12">
+                    <input id="itemUrl" type="url" class="validate" required>
+                    <label for="itemUrl">購買連結</label>
+                </div>
+                <div class="input-field col s12">
+                    <input id="itemNote" type="text" class="validate">
+                    <label for="itemNote">備註</label>
+                </div>
+                <div class="col s12">
+                    <p>圖片來源</p>
+                    <div class="row">
+                        <div class="col s6">
+                            <button class="btn waves-effect waves-light" id="uploadImageBtn">上傳圖片
+                                <i class="material-icons right">cloud_upload</i>
+                            </button>
+                            <input type="file" id="imageUpload" style="display: none;" accept="image/*">
+                        </div>
+                        <div class="col s6">
+                            <div class="input-field">
+                                <input id="imageUrl" type="url" class="validate">
+                                <label for="imageUrl">圖片網址</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="preview-image" id="imagePreview" style="margin-top: 10px; display: none;">
+                        <img id="previewImage" src="" alt="預覽圖片" style="max-width: 100%; max-height: 200px;">
+                    </div>
+                </div>
+                <div class="input-field col s12">
+                    <div class="chips" id="tagChips"></div>
+                    <label>標籤 (按 Enter 添加)</label>
+                </div>
+                <div class="input-field col s12">
+                    <div class="switch">
+                        <label>
+                            未購買
+                            <input id="purchasedSwitch" type="checkbox">
+                            <span class="lever"></span>
+                            已購買
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn waves-effect waves-light" id="saveItem">儲存
+                <i class="material-icons right">save</i>
+            </button>
+            <button class="btn waves-effect waves-light grey modal-close">取消
+                <i class="material-icons right">cancel</i>
+            </button>
+        </div>
+    </div>
+    
+    <div id="editItemModal" class="modal">
+        <div class="modal-content">
+            <h4>編輯商品</h4>
+            <div class="row">
+                <input type="hidden" id="editItemId">
+                <div class="input-field col s12">
+                    <input id="editItemTitle" type="text" class="validate" required>
+                    <label for="editItemTitle">標題</label>
+                </div>
+                <div class="input-field col s12">
+                    <input id="editItemPrice" type="number" class="validate" required>
+                    <label for="editItemPrice">價格</label>
+                </div>
+                <div class="input-field col s12">
+                    <input id="editItemUrl" type="url" class="validate" required>
+                    <label for="editItemUrl">購買連結</label>
+                </div>
+                <div class="input-field col s12">
+                    <input id="editItemNote" type="text" class="validate">
+                    <label for="editItemNote">備註</label>
+                </div>
+                <div class="col s12">
+                    <p>圖片來源</p>
+                    <div class="row">
+                        <div class="col s6">
+                            <button class="btn waves-effect waves-light" id="editUploadImageBtn">上傳圖片
+                                <i class="material-icons right">cloud_upload</i>
+                            </button>
+                            <input type="file" id="editImageUpload" style="display: none;" accept="image/*">
+                        </div>
+                        <div class="col s6">
+                            <div class="input-field">
+                                <input id="editImageUrl" type="url" class="validate">
+                                <label for="editImageUrl">圖片網址</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="preview-image" id="editImagePreview" style="margin-top: 10px; display: none;">
+                        <img id="editPreviewImage" src="" alt="預覽圖片" style="max-width: 100%; max-height: 200px;">
+                    </div>
+                </div>
+                <div class="input-field col s12">
+                    <div class="chips" id="editTagChips"></div>
+                    <label>標籤 (按 Enter 添加)</label>
+                </div>
+                <div class="input-field col s12">
+                    <div class="switch">
+                        <label>
+                            未購買
+                            <input id="editPurchasedSwitch" type="checkbox">
+                            <span class="lever"></span>
+                            已購買
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn waves-effect waves-light" id="updateItem">更新
+                <i class="material-icons right">save</i>
+            </button>
+            <button class="btn waves-effect waves-light grey modal-close">取消
+                <i class="material-icons right">cancel</i>
+            </button>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
