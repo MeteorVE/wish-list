@@ -7,7 +7,6 @@
     <link rel="icon" href="https://img.icons8.com/material-two-tone/96/fast-cart.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -41,11 +40,18 @@
                     <label>篩選標籤</label>
                 </div>
             </div>
-            <div class="col s12 m12 l4 action-buttons">
-                <a class="waves-effect waves-light btn modal-trigger" href="#addItemModal"><i class="material-icons left">add</i>新增商品</a>
-                <button id="resetFilters" class="btn waves-effect waves-light red lighten-1">重設篩選</button>
-                <button id="saveToServerBtn" class="btn waves-effect waves-light green darken-1" style="display:none;"><i class="material-icons left">cloud_upload</i>儲存到伺服器</button>
-                <button id="saveToLocalBtn" class="btn waves-effect waves-light blue darken-1" style="display:none;"><i class="material-icons left">download</i>儲存到本地</button>
+            <div class="col s12 m12 l4 action-buttons" style="margin-bottom: 10px;"> <a class="waves-effect waves-light btn modal-trigger" href="#addItemModal" style="margin-bottom: 5px;"><i class="material-icons left">add</i>新增商品</a>
+                <button id="resetFilters" class="btn waves-effect waves-light red lighten-1" style="margin-bottom: 5px;">重設篩選</button>
+                <button id="saveToServerBtn" class="btn waves-effect waves-light green darken-1" style="display:none; margin-bottom: 5px;"><i class="material-icons left">cloud_upload</i>儲存到伺服器</button>
+                <button id="saveToLocalBtn" class="btn waves-effect waves-light blue darken-1" style="display:none; margin-bottom: 5px;"><i class="material-icons left">download</i>儲存到本地</button>
+            </div>
+            <div class="col s12 m6 l4"> <div class="input-field inline" style="display: flex; align-items: flex-end;">
+                    <input id="cardHeightInput" type="number" class="validate" value="200" style="width: 100px; margin-right: 10px;">
+                    <label for="cardHeightInput">卡片高度 (px)</label>
+                    <button id="applyCardHeightBtn" class="btn waves-effect waves-light blue lighten-1">
+                        <i class="material-icons left">aspect_ratio</i>套用高度
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -227,6 +233,6 @@
     <div id="toast" class="toast"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script src="script.js"></script>
+    <script src="script.js?v=0.0.7"></script>
 </body>
 </html>

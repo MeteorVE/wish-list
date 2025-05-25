@@ -7,7 +7,8 @@ let isDataChanged = false; // 檢查資料是否有未儲存的變動
 
 // API 基本 URL (請替換為您的實際後端 URL)
 // 根據您提供的 Flask 後端，其運行在 5001 埠
-const API_BASE_URL = 'http://127.0.0.1:5001'; // 或 'http://localhost:5001'
+// const API_BASE_URL = 'https://wish-list-local-be.m1t2.link'; // 或 'http://localhost:5001'
+const API_BASE_URL = 'https://wish-list-local.m1t2.link'; // 或 'http://localhost:5001'
 
 // =====================================
 // 輔助函數
@@ -80,7 +81,7 @@ function resetForm() {
     document.getElementById('itemDeadline').value = '';
     const datepickerInstance = M.Datepicker.getInstance(document.getElementById('itemDeadline'));
     if (datepickerInstance) {
-        const defaultDate = new Date(2099, 11, 31); // 2099年12月31日
+        const defaultDate = new Date(2025, 6, 30); // 2099年12月31日
         datepickerInstance.setDate(defaultDate);
         datepickerInstance.gotoDate(defaultDate);
     }
@@ -110,7 +111,7 @@ function resetEditForm() {
     document.getElementById('editItemDeadline').value = '';
     const datepickerInstance = M.Datepicker.getInstance(document.getElementById('editItemDeadline'));
     if (datepickerInstance) {
-        const defaultDate = new Date(2099, 11, 31); // 2099年12月31日
+        const defaultDate = new Date(2025, 6, 30); // 2099年12月31日
         datepickerInstance.setDate(defaultDate);
         datepickerInstance.gotoDate(defaultDate);
     }
@@ -344,6 +345,35 @@ function renderItems(itemsToRender) {
     if (loadingElement) {
         loadingElement.style.display = 'none';
     }
+
+    // 在渲染完畢後，應用之前設定的卡片高度
+    const savedHeight = localStorage.getItem('wishlistCardMaxHeight') || '200px'; // 預設 200px
+    document.getElementById('cardHeightInput').value = parseInt(savedHeight); // 更新輸入框顯示值
+    applyCardHeight(savedHeight);
+}
+
+/**
+ * 套用商品卡片的高度限制
+ * @param {string | number} height - 卡片的最大高度值 (例如 '250px' 或 '250')
+ */
+function applyCardHeight(height) {
+    const cards = document.querySelectorAll('.card.horizontal');
+    const heightValue = typeof height === 'string' ? height : `${height}px`;
+
+    cards.forEach(card => {
+        card.style.maxHeight = heightValue;
+        card.style.overflowY = 'auto'; // 如果內容超出，則滾動
+        // 同時限制圖片的高度，確保圖片不會撐開卡片
+        const cardImage = card.querySelector('.card-image img');
+        if (cardImage) {
+            cardImage.style.maxHeight = heightValue;
+            cardImage.style.width = 'auto'; // 保持圖片寬高比
+            cardImage.style.objectFit = 'contain'; // 確保圖片完整顯示在限制框內
+        }
+    });
+
+    // 儲存設定到 localStorage，以便下次載入時記住
+    localStorage.setItem('wishlistCardMaxHeight', heightValue);
 }
 
 /**
@@ -480,16 +510,25 @@ function updateStatistics() {
  * @param {string} deadline
  */
 async function addItem(title, price, url, purchased, image, note, tags, deadline) {
-    // 簡單驗證
-    if (!title || !price || !url) {
-        showToast('商品名稱、價格和連結是必填欄位。', 'error');
+    // 簡單驗證 - 移到函數開頭
+    // 不符合條件時，只顯示錯誤訊息，不執行後續邏輯，也不清空表單
+    if (!title || title.trim() === '') {
+        showToast('商品名稱是必填欄位。', 'error');
+        return;
+    }
+    if (!price || isNaN(parseFloat(price))) { // 檢查價格是否為有效數字
+        showToast('價格是必填欄位且必須是數字。', 'error');
+        return;
+    }
+    if (!url || url.trim() === '') {
+        showToast('購買連結是必填欄位。', 'error');
         return;
     }
 
     const newItem = {
         id: items.length > 0 ? Math.max(...items.map(item => item.id)) + 1 : 1,
         title,
-        price: parseFloat(price),
+        price: parseFloat(price), // 確保價格是數字
         url,
         image,
         purchased,
@@ -503,7 +542,11 @@ async function addItem(title, price, url, purchased, image, note, tags, deadline
     updateAllTags();
     updateTagFilterOptions();
     filterItems(); // 重新篩選並渲染
+
+    // 驗證成功後才關閉模態框並清空表單
     M.Modal.getInstance(document.getElementById('addItemModal')).close();
+    resetForm(); // 驗證成功後才重置表單
+
     showToast('商品已新增', 'success');
 }
 
@@ -524,7 +567,7 @@ function openEditModal(id) {
 
     // 設定編輯模態框的截止日期
     const editDeadlineInput = document.getElementById('editItemDeadline');
-    const deadlineValue = item.deadline || '2099-12-31';
+    const deadlineValue = item.deadline || '2025-06-30';
     editDeadlineInput.value = deadlineValue;
 
     const datepickerInstance = M.Datepicker.getInstance(editDeadlineInput);
@@ -539,12 +582,12 @@ function openEditModal(id) {
                 datepickerInstance.setDate(dateObj);
                 datepickerInstance.gotoDate(dateObj);
             } else {
-                datepickerInstance.setDate(new Date(2099, 11, 31));
-                datepickerInstance.gotoDate(new Date(2099, 11, 31));
+                datepickerInstance.setDate(new Date(2025, 6, 30));
+                datepickerInstance.gotoDate(new Date(2025, 6, 30));
             }
         } else {
-            datepickerInstance.setDate(new Date(2099, 11, 31));
-            datepickerInstance.gotoDate(new Date(2099, 11, 31));
+            datepickerInstance.setDate(new Date(2025, 6, 30));
+            datepickerInstance.gotoDate(new Dat(2025, 6, 30));
         }
     }
 
@@ -780,7 +823,7 @@ function logout() {
 document.addEventListener('DOMContentLoaded', function() {
     // 初始化 Materialize 元件
     M.AutoInit(); // 初始化所有 Materialize JS 元件 (Modal, Select, Datepicker etc.)
-
+    
     // 手動初始化 Datepicker
     M.Datepicker.init(document.querySelectorAll('.datepicker'), {
         format: 'yyyy-mm-dd',
@@ -804,6 +847,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 登入模態框預設打開
     M.Modal.getInstance(document.getElementById('loginModal')).open();
+
+    // 在頁面載入時，從 localStorage 載入並應用卡片高度
+    const initialCardHeight = localStorage.getItem('wishlistCardMaxHeight');
+    if (initialCardHeight) {
+        document.getElementById('cardHeightInput').value = parseInt(initialCardHeight);
+        applyCardHeight(initialCardHeight);
+    } else {
+        document.getElementById('cardHeightInput').value = 200;
+        applyCardHeight(200); // 確保預設高度也被應用
+    }
+    // 因為 Materialize 的 input-field 標籤需要在元素存在且初始化後才能正確更新
+    // M.updateTextFields(); // 呼叫這個確保標籤位置正確
 
     // 綁定登入/註冊按鈕事件
     document.getElementById('loginBtn').addEventListener('click', () => loginOrRegister(false)); // 這裡的 isRegister 參數對此後端無實際作用
@@ -882,7 +937,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         await addItem(title, price, url, purchased, finalImage, note, tags, deadline);
-        resetForm(); // 重置表單
     });
 
     // 更新商品表單提交
@@ -1000,10 +1054,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // 套用卡片高度按鈕事件
+    document.getElementById('applyCardHeightBtn').addEventListener('click', function() {
+        const height = document.getElementById('cardHeightInput').value;
+        console.log("讀取到的高度:", height)
+        applyCardHeight(height);
+        showToast(`卡片高度已設定為 ${height}px`, 'info');
+    });
+
     // 監聽模態框關閉事件，重置編輯表單
     const editItemModalInstance = M.Modal.getInstance(document.getElementById('editItemModal'));
     editItemModalInstance.options.onCloseEnd = resetEditForm;
 
     const addItemModalInstance = M.Modal.getInstance(document.getElementById('addItemModal'));
     addItemModalInstance.options.onCloseEnd = resetForm;
+
+
 });
